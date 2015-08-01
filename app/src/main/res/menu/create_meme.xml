@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="doge.thecraftcod.myapplication.ui.CreateMemeActivity">
+    <item android:id="@+id/choose_font_action"
+        app:showAsAction="always"
+        android:title="@string/action_choose_font"
+        android:actionLayout="@layout/font_color_selection" />
+    <item android:id="@+id/save_action"
+        android:title="@string/action_save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom" />
+</menu>
