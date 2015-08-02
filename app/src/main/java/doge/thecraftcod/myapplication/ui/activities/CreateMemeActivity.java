@@ -1,12 +1,11 @@
 package doge.thecraftcod.myapplication.ui.activities;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.support.v7.app.ActionBarActivity;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
@@ -14,15 +13,17 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import doge.thecraftcod.myapplication.R;
+import doge.thecraftcod.myapplication.database.MemeDatasource;
 import doge.thecraftcod.myapplication.models.Meme;
 import doge.thecraftcod.myapplication.models.MemeAnnotation;
 import doge.thecraftcod.myapplication.ui.views.MemeImageView;
@@ -43,8 +44,27 @@ public class CreateMemeActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_meme);
+
+        // We create an Spinner on ActionBar
+        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.fontColorEntries, android.R.layout.simple_spinner_dropdown_item);
+
+        OnNavigationListener mOnNavigationListener = new ActionBar.OnNavigationListener() {
+            // Get the same strings provided for the drop-down's ArrayAdapter
+            String[] entries = getResources().getStringArray(R.array.fontColorEntries);
+            String[] values = getResources().getStringArray(R.array.fontColorValues);
+
+            @Override
+            public boolean onNavigationItemSelected(int position, long itemId) {
+                Toast.makeText(CreateMemeActivity.this, values[position], Toast.LENGTH_LONG).show();
+                mCurrentColor = values[position];
+                return true;
+            }
+        };
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setListNavigationCallbacks(mSpinnerAdapter, mOnNavigationListener);
 
 
         mMemeTexts = new ArrayList<EditText>();
@@ -104,18 +124,6 @@ public class CreateMemeActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.create_meme, menu);
-        Spinner colorOptions = (Spinner) menu.findItem(R.id.choose_font_action).getActionView();
-        colorOptions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                mCurrentColor = getResources().getStringArray(R.array.fontColorValues)[i];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
         return true;
     }
@@ -155,12 +163,10 @@ public class CreateMemeActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void addEditTextOverImage(String title, int x, int y, String color) {
         ContextThemeWrapper newContext = new ContextThemeWrapper(this, R.style.holoLightLess);
         EditText editText = new EditText(this);
         editText.setText(title);
-        editText.setBackground(null);
         editText.setTextColor(Color.parseColor(color));
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -177,5 +183,15 @@ public class CreateMemeActivity extends ActionBarActivity {
             MemeAnnotation annotation = mCurrentMeme.getAnnotations().get(i);
             annotation.setTitle(editText.getText().toString());
         }
+
+        MemeDatasource datasource = new MemeDatasource(this);
+        if (mCurrentMeme.getId() != -1){
+            datasource.update(mCurrentMeme);
+        }
+        else {
+            datasource.create(mCurrentMeme);
+        }
     }
+
+
 }

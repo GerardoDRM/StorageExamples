@@ -10,9 +10,8 @@ import doge.thecraftcod.myapplication.R;
 import doge.thecraftcod.myapplication.ui.fragments.ImageGridFragment;
 import doge.thecraftcod.myapplication.ui.fragments.MemeItemFragment;
 
-
 /**
- * Created by Evan Anger on 8/10/14.
+ * Created by gerardo on 19/07/15.
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
     Context mContext;
@@ -24,13 +23,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Fragment fragment;
         if(position == 0) {
-            fragment = new ImageGridFragment();
-        } else {
-            fragment = new MemeItemFragment();
+            return new ImageGridFragment();
         }
-        return fragment;
+        else if (position == 1) {
+            return new MemeItemFragment();
+        }
+        return null;
     }
 
     @Override

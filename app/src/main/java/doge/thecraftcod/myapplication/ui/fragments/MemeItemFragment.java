@@ -21,8 +21,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import doge.thecraftcod.myapplication.R;
 import doge.thecraftcod.myapplication.adapters.MemeItemListAdapter;
+import doge.thecraftcod.myapplication.database.MemeDatasource;
 import doge.thecraftcod.myapplication.models.Meme;
 import doge.thecraftcod.myapplication.models.MemeAnnotation;
 import doge.thecraftcod.myapplication.ui.activities.CreateMemeActivity;
@@ -69,6 +72,9 @@ public class MemeItemFragment extends ListFragment {
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         Toast.makeText(MemeItemFragment.this.getActivity(), "Should delete", Toast.LENGTH_LONG).show();
                                         mMemeItemListAdapter.notifyDataSetChanged();
+                                        MemeDatasource memeDatasource = new MemeDatasource(MemeItemFragment.this.getActivity());
+                                        memeDatasource.delete(memeId);
+                                        refreshMemes();
                                         mMenu.findItem(R.id.share_action).setVisible(true);
                                         mMenu.findItem(R.id.edit_action).setVisible(true);
 
@@ -82,9 +88,22 @@ public class MemeItemFragment extends ListFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        refreshMemes();
+
+    }
+
+    private void refreshMemes() {
+        MemeDatasource datasource = new MemeDatasource(this.getActivity());
+        ArrayList<Meme> memes = datasource.read();
+        setListAdapter(new MemeItemListAdapter(getActivity(), memes));
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.setHasOptionsMenu(true);
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
